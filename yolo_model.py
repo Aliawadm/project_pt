@@ -7,7 +7,7 @@ from moviepy.editor import VideoFileClip
 import re
 from moviepy.editor import *
 from collections import defaultdict
-
+import numpy
 def find_latest_prediction(directory):
     try:
         files = os.listdir(directory)
@@ -43,22 +43,35 @@ def detect_objects(video_path):
     video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, frame_size)
 
     f_num = 0
-    
+    d={1:0}
+    q=0
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
         
-        results=model.track(frame,conf=0.25, save=True)
+        results=model.track(frame,conf=0.19,persist=True, save=True)
+
+        
         for result in results:
             boxes = result.boxes  # Boxes object for bbox outputs
             z=boxes.xyxy.tolist()
             zz=boxes.xyxyn.tolist()
+        if boxes.id is None:
+            pass
+        else:
+            q = boxes.id
+            w=int(q[0])
+            q=w
+            if q not in d.keys():
+                d[q]= 0
+
 
         
+        
         maxPrice=8751 
-        image_path=find_latest_prediction(r"C:\Users\Admin\Desktop\zzz\runs\detect")
+        image_path=find_latest_prediction(r"C:\Users\HP\Desktop\project_pt\runs\detect")
         complete_file_path = os.path.join(image_path, 'image0.jpg')
         image = cv2.imread(complete_file_path)
         for i in range(len(z)):
@@ -81,7 +94,10 @@ def detect_objects(video_path):
             bottom_right_corner = (int(xmax), int(ymax))
             cv2.rectangle(image, top_left_corner, bottom_right_corner, (255, 255, 255, 255), cv2.FILLED)
             cv2.putText(image, "{} SAR".format(costt), text_position, cv2.FONT_ITALIC, 0.9, (0, 0, 0), 2)
-            print(i,', The cost is: ',costt)
+            #print(i,', The cost is: ',costt)
+        if q>0:
+          if d[q]<costt:
+              d[q]=costt
 
         cv2.imwrite(complete_file_path, image)
         video_writer.write(image)
@@ -117,9 +133,13 @@ def detect_objects(video_path):
 
 
     
-    cv2.rectangle(base_image, (0,0), (1200,1200), (255, 255, 255, 255), cv2.FILLED)
-    cv2.putText(base_image, "Cost: {} SAR".format(costt), (320,250), cv2.FONT_ITALIC, 0.9, (0, 0, 0), 2)
-    cv2.putText(base_image, "Street: Tamim aldari", (320,300), cv2.FONT_ITALIC, 0.9, (0, 0, 0), 2)
+    cv2.rectangle(base_image, (0,0), (1400,1200), (255, 255, 255, 255), cv2.FILLED)
+    g=250
+    for i in d.keys():
+        cv2.putText(base_image, "Cost: {} SAR".format(d[i]), (320,g), cv2.FONT_ITALIC, 0.9, (0, 0, 0), 2)
+        g=g+50
+        
+    
     dst = cv2.add(roi_bg, roi_fg)
     base_image[0:rows, 0:cols] = dst
     cv2.imwrite(complete_file_path, base_image)
@@ -129,21 +149,8 @@ def detect_objects(video_path):
     vid = VideoFileClip("output_video.mp4")
     vid.write_videofile("corrected.mp4")
 
-def try_fix_video(video_path, output_path):
-  try:
-    # Open the video clip
-    video_clip = VideoFileClip(video_path)
-    # Try writing the video with different codecs
-    for codec in ["libx264", "libx265", "mpeg4"]:
-      try:
-        video_clip.write_videofile(output_path, codec=codec)
-        print(f"Video successfully repaired and saved to {output_path}")
-        break
-      except Exception as e:
-        print(f"Error while writing with codec {codec}: {e}")
-  except Exception as e:
-    print(f"Error opening video: {e}")
 
 
 
 
+detect_objects(R"C:\Users\HP\Desktop\project_pt\static\videos\input.mp4")
