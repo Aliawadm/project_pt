@@ -10,7 +10,8 @@ from collections import defaultdict
 import numpy
 def find_latest_prediction(directory):
     try:
-        files = os.listdir(directory)
+        complete_file_path = os.path.join(os.getcwd(),directory)
+        files = os.listdir(complete_file_path)
     except FileNotFoundError:
         return None
 
@@ -71,7 +72,8 @@ def detect_objects(video_path):
         
         
         maxPrice=8751 
-        image_path=find_latest_prediction(r"C:\Users\HP\Desktop\project_pt\runs\detect")
+        directory_path = r"runs\detect"
+        image_path=find_latest_prediction(directory_path)
         complete_file_path = os.path.join(image_path, 'image0.jpg')
         image = cv2.imread(complete_file_path)
         for i in range(len(z)):
@@ -152,5 +154,3 @@ def detect_objects(video_path):
 
 
 
-
-detect_objects(R"C:\Users\HP\Desktop\project_pt\static\videos\input.mp4")

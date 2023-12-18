@@ -227,8 +227,19 @@ h3, p {
   <header>
     <div class="overlay">
   <h1 style="padding-right:110px ;">Salik</h1>
+  <script>
+    // Get the current URL
+    var currentURL = window.location.href;
+  
+    // Append "/image" to the current URL
+    var imageURL = currentURL + "/image";
+  
+    // Set the href attribute of the anchor tag
+    document.getElementById("imageLink").href = imageURL;
+  </script>
   <p style="padding-right:110px ;">To make the road better</p>
-    
+  <br>
+  <p style="padding-right:110px ;">If you want to try the model using an image, click <a id="imageLink" href="/image">here</a>.</p>
       </div>
   </header>
   

@@ -7,7 +7,11 @@ import uvicorn
 from yolo_model import detect_objects
 import os
 import re
+from yolo_model_image import detect_objects_image
 from fastapi.responses import FileResponse
+from PIL import Image
+from fastapi.responses import StreamingResponse
+from io import BytesIO
 from fastapi.staticfiles import StaticFiles
 app = FastAPI(debug=True)
 templates = Jinja2Templates(directory="templates")
@@ -22,7 +26,8 @@ def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request,"video_url": video_url})
 
 def find_latest_prediction(directory):
-    files = os.listdir(directory)
+    complete_file_path = os.path.join(os.getcwd(),directory)
+    files = os.listdir(complete_file_path)
     prediction_files = [file for file in files if re.search(r'predict\d+', file)]
 
     if prediction_files:
@@ -34,7 +39,7 @@ def find_latest_prediction(directory):
         return None
 
 @app.post("/")
-async def create_upload_file(file: UploadFile = File(...)):
+def create_upload_file(file: UploadFile = File(...)):
     video_path = 'static/videos/input.mp4'
     with open(video_path, "wb") as video:
         video.write(file.file.read())
@@ -42,6 +47,32 @@ async def create_upload_file(file: UploadFile = File(...)):
     detect_objects(video_path)
 
     return FileResponse("corrected.mp4", media_type="video/mp4")
+
+@app.get("/image")
+def home(request: Request):
+    video_url = "/static/back.mp4"
+    return templates.TemplateResponse("index_image.html", {"request": request,"video_url": video_url})
+
+@app.post("/image")
+def create_upload_file(file: UploadFile = File(...)):
+    image_path = 'static/images/input.jpg'
+    with open(image_path, "wb") as image:
+        image.write(file.file.read())
+
+    detect_objects_image(image_path)
+    directory_path = r"runs\detect"
+    latest_prediction_path = find_latest_prediction(directory_path)
+    complete_file_path = os.path.join(latest_prediction_path, 'input.jpg')
+    # Open image
+    image = Image.open(complete_file_path)
+
+    # Convert image to BytesIO object
+    img_io = BytesIO()
+    image.save(img_io, format='JPEG')
+    img_io.seek(0)
+
+    # Return the image data in the response
+    return StreamingResponse(img_io, media_type="image/jpeg")
 
 if __name__ == '__main__':
     uvicorn.run(app, host='127.0.0.1', port=8000)

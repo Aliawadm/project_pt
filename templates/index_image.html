@@ -1,0 +1,419 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Pollution Video Detection</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
+
+      .footer {
+position: relative;
+width: 92.5%;
+background: #3586ff;
+min-height: 100px;
+padding: 20px 50px;
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+margin-top:100px ;
+}
+
+.social-icon,
+.menu {
+position: relative;
+display: flex;
+justify-content: center;
+align-items: center;
+margin: 10px 0;
+flex-wrap: wrap;
+}
+
+.social-icon__item,
+.menu__item {
+list-style: none;
+}
+
+.social-icon__link {
+font-size: 2rem;
+color: #fff;
+margin: 0 10px;
+display: inline-block;
+transition: 0.5s;
+}
+.social-icon__link:hover {
+transform: translateY(-10px);
+}
+
+.menu__link {
+font-size: 1.2rem;
+color: #fff;
+margin: 0 10px;
+display: inline-block;
+transition: 0.5s;
+text-decoration: none;
+opacity: 0.75;
+font-weight: 300;
+}
+
+.menu__link:hover {
+opacity: 1;
+}
+
+.footer p {
+color: #fff;
+margin: 15px 0 10px 0;
+font-size: 1rem;
+font-weight: 300;
+}
+
+.wave {
+position: absolute;
+top: -100px;
+left: 0;
+width: 100%;
+height: 100px;
+background: url("https://i.ibb.co/wQZVxxk/wave.png");
+background-size: 1000px 100px;
+}
+
+.wave#wave1 {
+z-index: 1000;
+opacity: 1;
+bottom: 0;
+animation: animateWaves 4s linear infinite;
+}
+
+.wave#wave2 {
+z-index: 999;
+opacity: 0.5;
+bottom: 10px;
+animation: animate 4s linear infinite !important;
+}
+
+.wave#wave3 {
+z-index: 1000;
+opacity: 0.2;
+bottom: 15px;
+animation: animateWaves 3s linear infinite;
+}
+
+.wave#wave4 {
+z-index: 999;
+opacity: 0.7;
+bottom: 20px;
+animation: animate 3s linear infinite;
+}
+
+@keyframes animateWaves {
+0% {
+  background-position-x: 1000px;
+}
+100% {
+  background-position-x: 0px;
+}
+}
+
+@keyframes animate {
+0% {
+  background-position-x: -1000px;
+}
+100% {
+  background-position-x: 0px;
+}
+}
+
+
+      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: inline-flexbox;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: scroll;
+  height: 900px;
+      }
+      header {
+background: url('http://www.autodatz.com/wp-content/uploads/2017/05/Old-Car-Wallpapers-Hd-36-with-Old-Car-Wallpapers-Hd.jpg');
+text-align: center;
+width: 100%;
+height: auto;
+background-size: cover;
+background-attachment: fixed;
+position: relative;
+overflow: hidden;
+border-radius: 0 0 85% 85% / 30%;
+}
+header .overlay {
+width: 100%;
+height: 100%;
+padding: 50px;
+color: #FFF;
+text-shadow: 1px 1px 1px #333;
+background-image: linear-gradient(135deg, rgba(5, 117, 230, 0.7) 10%, rgba(0, 242, 96, 0.7) 100%);
+}
+h3, p {
+font-family: 'Open Sans', sans-serif;
+margin-bottom: 30px;
+}
+
+      video#background-video {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 120%;
+          object-fit: cover;
+          margin-top: -1px;
+          margin-left: -1px;
+          z-index: -1; /* Place it behind other elements */
+          filter: blur(5px); /* Add a blur effect to the video */
+      }
+
+      h1 {
+          color: #ffffff;
+          z-index: 1; /* Place it above the video */
+      }
+
+      form, #output-container, #download-button {
+          z-index: 1; /* Place these elements above the video */
+          padding: 20px;
+          margin: 20px;
+          border-radius: 10px;
+      }
+
+      label {
+          font-size: 18px;
+          margin-bottom: 10px;
+          color: rgb(255, 255, 255)
+      }
+
+      #file {
+          display: none;
+      }
+
+      .custom-file-upload {
+          padding: 10px 20px;
+          background-color: #3498db;
+          color: #fff;
+          border: none;
+          cursor: pointer;
+          font-size: 16px;
+          transition: background-color 0.3s;
+          display: inline-block;
+      }
+
+
+
+      video {
+          max-width: 100%;
+          margin-top: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+      }
+
+
+      #download-button:hover {
+          background-color: #27ae60;
+      }
+
+  </style>
+    </style>
+</head>
+<body>
+  <header>
+    <div class="overlay">
+  <h1 style="padding-right:110px ;">Salik</h1>
+  <p style="padding-right:110px ;">To make the road better</p>
+  
+  <br>
+  <p style="padding-right:110px ;">If you want to try the model using a video, click <a href="/">here</a>.</p>
+      </div>
+  </header>
+  <video id="background-video" autoplay loop muted>
+    <source src="{{ video_url }}" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+
+    <form id="upload-form" enctype="multipart/form-data">
+        <label for="file">Select an image file:</label>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <label class="custom-file-upload" for="file">Choose File</label>
+            <input type="file" id="file" accept=".jpg, .jpeg, .png" required style="display: none;" onchange="displaySelectedImage(this)">
+            <img id="selected-image" src="https://via.placeholder.com/150" alt="Placeholder Image" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px;">
+        </div>
+        <button type="button" onclick="uploadImage()" class="custom-file-upload">Upload Image</button>
+    </form>
+
+    <div id="output-container"></div>
+    <button id="download-button" onclick="downloadImage()">Download Image</button>
+      
+  <footer class="footer">
+    <div class="waves">
+      <div class="wave" id="wave1"></div>
+      <div class="wave" id="wave2"></div>
+      <div class="wave" id="wave3"></div>
+      <div class="wave" id="wave4"></div>
+    </div>
+    <ul style="text-align: center;margin-bottom: 0px;" class="social-icon">
+      <li class="social-icon__item"><a class="social-icon__link" href="https://www.linkedin.com/in/abdullah-alajalin-b98185211/">
+          <ion-icon name="logo-linkedin"></ion-icon>
+        </a></li>
+      <li class="social-icon__item"><a class="social-icon__link" href="https://www.linkedin.com/in/aliawadalmutairi/">
+          <ion-icon name="logo-linkedin"></ion-icon>
+        </a></li>
+      <li class="social-icon__item"><a class="social-icon__link" href="https://www.linkedin.com/in/salehbinshaheen/">
+          <ion-icon name="logo-linkedin"></ion-icon>
+        </a></li>    
+    </ul>
+    <ul style="text-align: center;margin-top: 0px;" class="social-icon">
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p>Abdullah</p>
+        
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>
+      <li class="social-icon__item">
+        <p>Ali</p>
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li><li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>
+      <li class="social-icon__item">
+        <p>Saleh</p>
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>
+      <li style="margin-left: 10px;" class="social-icon__item">
+        
+        <p> </p>
+        
+      </li>    
+    </ul>
+    <ul class="menu">
+      <li class="menu__item"><a class="menu__link" href="#">Home</a></li>
+      <li class="menu__item"><a class="menu__link" href="#">About</a></li>
+      <li class="menu__item"><a class="menu__link" href="#">Services</a></li>
+      <li class="menu__item"><a class="menu__link" href="#">Team</a></li>
+      <li class="menu__item"><a class="menu__link" href="#">Contact</a></li>
+
+    </ul>
+    <p>&copy;2024 Salik | All Rights Reserved</p>
+  </footer>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+    <script>
+        function displaySelectedImage(input) {
+            var selectedImage = document.getElementById('selected-image');
+            var file = input.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    selectedImage.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+
+        function uploadImage() {
+        var inputImage = document.getElementById('file').files[0];
+
+        var formData = new FormData();
+        formData.append('file', inputImage);
+
+        fetch('/image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Image upload failed');
+            }
+            return response.blob();
+        })
+        .then(data => {
+            displayOutput(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+
+    function displayOutput(data) {
+        var outputContainer = document.getElementById('output-container');
+        outputContainer.innerHTML = '';
+
+        if (data instanceof Blob) {
+            // Display the output image
+            var outputImage = document.createElement('img');
+            outputImage.src = URL.createObjectURL(data);
+            outputImage.alt = 'Output Image';
+            outputImage.style.maxWidth = '100%';
+            outputImage.style.border = '1px solid #ddd';
+            outputImage.style.borderRadius = '4px';
+            outputContainer.appendChild(outputImage);
+        } else {
+            console.error('Invalid response format');
+        }
+    }
+    function downloadImage() {
+        var outputImage = document.getElementById('output-container').getElementsByTagName('img')[0];
+        
+        // Create an anchor element
+        var downloadLink = document.createElement('a');
+        
+        // Set the href attribute to the data URL of the image
+        downloadLink.href = outputImage.src;
+        
+        // Set the download attribute with the desired filename
+        downloadLink.download = 'output.jpg';
+        
+        // Simulate a click on the anchor element to trigger the download
+        downloadLink.click();
+    }
+</script>
+</body>
+</html>
