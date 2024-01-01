@@ -74,5 +74,11 @@ def create_upload_file(file: UploadFile = File(...)):
     # Return the image data in the response
     return StreamingResponse(img_io, media_type="image/jpeg")
 
+@app.get("/analysis")
+def home(request: Request):
+    video_url = "/static/back.mp4"
+    pdf_url = "/static/Fatorh.pdf"
+    return templates.TemplateResponse("index_analysis.html", {"request": request,"video_url": video_url,"pdf_url":pdf_url})
+
 if __name__ == '__main__':
     uvicorn.run(app, host='127.0.0.1', port=8000)

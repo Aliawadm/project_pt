@@ -262,7 +262,7 @@ h3, p {
 
     <div id="output-container"></div>
     <button id="download-button" onclick="downloadVideo()">Download Video</button>
-    
+    <button id="download-button" onclick="redirectToAnotherPage()">Show Analysis Page</button>
   <footer class="footer">
     <div class="waves">
       <div class="wave" id="wave1"></div>
@@ -365,6 +365,11 @@ h3, p {
 
                 reader.readAsDataURL(file);
             }
+        }
+
+        function redirectToAnotherPage() {
+            
+            window.location.href = '/analysis';
         }
 
         function uploadVideo() {

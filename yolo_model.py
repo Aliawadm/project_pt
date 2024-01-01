@@ -8,6 +8,35 @@ import re
 from moviepy.editor import *
 from collections import defaultdict
 import numpy
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle,Image
+import shutil
+def FullReport(file_path,data):
+    pdf = SimpleDocTemplate(file_path, pagesize=letter, leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
+
+    col_widths = [pdf.width / len(data[0])] * len(data[0])
+
+    table = Table(data, colWidths=col_widths)
+
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), '#8ec73f'),
+        ('TEXTCOLOR', (0, 0), (-1, 0), (1, 1, 1)), # Header text color
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), '#000000'),
+        ('GRID', (0, 0), (-1, -1), 1, '#000000'),
+        ('TEXTCOLOR', (0, 1), (-1, -1), (1, 1, 1)),  # Data text color
+    ])
+    table.setStyle(style)
+    image_path = 'logo.png'
+    header_image = Image(image_path, width=100, height=70)
+    pdf.build([header_image,table])
+
+    static_file_path = os.path.join(os.getcwd(),"static")
+    shutil.move(file_path, static_file_path)
+
+
 def find_latest_prediction(directory):
     try:
         complete_file_path = os.path.join(os.getcwd(),directory)
@@ -15,7 +44,6 @@ def find_latest_prediction(directory):
     except FileNotFoundError:
         return None
 
-    
     prediction_files = [file for file in files if re.search(r'predict\d+', file)]
 
     if prediction_files:
@@ -44,7 +72,8 @@ def detect_objects(video_path):
     video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, frame_size)
 
     f_num = 0
-    d={1:0}
+    D=[['potholes ID','Cost','height','width']]
+    d={1:[0,0,0]}
     q=0
     while True:
         ret, frame = cap.read()
@@ -66,7 +95,7 @@ def detect_objects(video_path):
             w=int(q[0])
             q=w
             if q not in d.keys():
-                d[q]= 0
+                d[q]= [0,0,0]
 
 
         
@@ -98,14 +127,15 @@ def detect_objects(video_path):
             cv2.putText(image, "{} SAR".format(costt), text_position, cv2.FONT_ITALIC, 0.9, (0, 0, 0), 2)
             #print(i,', The cost is: ',costt)
         if q>0:
-          if d[q]<costt:
-              d[q]=costt
+          if d[q][0]<costt:
+              d[q][0]=costt
+              d[q][1]=height
+              d[q][2]=width
 
         cv2.imwrite(complete_file_path, image)
         video_writer.write(image)
         f_num += 1
-    
-  
+
     # Load images
     base_image = image
     overlay_image = cv2.imread('logo.png', cv2.IMREAD_UNCHANGED)  # Use IMREAD_UNCHANGED to keep alpha channel if present
@@ -138,7 +168,7 @@ def detect_objects(video_path):
     cv2.rectangle(base_image, (0,0), (1400,1200), (255, 255, 255, 255), cv2.FILLED)
     g=250
     for i in d.keys():
-        cv2.putText(base_image, "Cost: {} SAR".format(d[i]), (320,g), cv2.FONT_ITALIC, 0.9, (0, 0, 0), 2)
+        cv2.putText(base_image, "Cost: {} SAR".format(d[i][0]), (320,g), cv2.FONT_ITALIC, 0.9, (0, 0, 0), 2)
         g=g+50
         
     
@@ -148,9 +178,13 @@ def detect_objects(video_path):
     video_writer.write(base_image)
     cap.release()
     video_writer.release()  
+    Fatorh_path = os.path.join(os.getcwd(),"Fatorh.pdf")
+    for i in d.keys():
+      D.append([i,d[i][0],d[i][1],d[i][2]])
+    FullReport(Fatorh_path,D)
     vid = VideoFileClip("output_video.mp4")
     vid.write_videofile("corrected.mp4")
 
 
 
-
+# detect_objects("static/videos/input.mp4")
