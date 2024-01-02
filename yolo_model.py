@@ -9,9 +9,31 @@ from moviepy.editor import *
 from collections import defaultdict
 import numpy
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle,Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle,Image,Spacer
 import shutil
+import matplotlib.pyplot as plt
+
+def graph(data):
+    m = data[1:]
+    total = 0
+    for i in range(len(m)):
+        total+=m[i][1]
+    plt.bar(
+        x=[2024,2025,2026,2027,2028,2029],
+        height=[total,total+(total*0.25),total+(total*0.5),total+(total*0.75),total*2,total*3],
+        color="#0a731d"
+    )
+    plt.title('The total cost in 5 years')
+    plt.savefig('pltTest.png', bbox_inches='tight')
+    
+
 def FullReport(file_path,data):
+    graph(data)
+    m = data[1:]
+    total = 0
+    for i in range(len(m)):
+        total+=m[i][1]
+    data.append(["Total :",total,"-","-"])
     pdf = SimpleDocTemplate(file_path, pagesize=letter, leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
 
     col_widths = [pdf.width / len(data[0])] * len(data[0])
@@ -28,12 +50,22 @@ def FullReport(file_path,data):
         ('GRID', (0, 0), (-1, -1), 1, '#000000'),
         ('TEXTCOLOR', (0, 1), (-1, -1), (1, 1, 1)),  # Data text color
     ])
+    
     table.setStyle(style)
     image_path = 'logo.png'
     header_image = Image(image_path, width=100, height=70)
-    pdf.build([header_image,table])
 
+    spacer=Spacer(1,20)
+
+    graph_im = 'pltTest.png'
+    g_image = Image(graph_im, width=300, height=300)
+
+    pdf.build([header_image,table,spacer,g_image])
+    
     static_file_path = os.path.join(os.getcwd(),"static")
+    destination_path = os.path.join(os.getcwd(),"static\Fatorh.pdf")
+    if os.path.exists(destination_path):
+      os.remove(destination_path)  # Remove the existing file
     shutil.move(file_path, static_file_path)
 
 
@@ -185,6 +217,3 @@ def detect_objects(video_path):
     vid = VideoFileClip("output_video.mp4")
     vid.write_videofile("corrected.mp4")
 
-
-
-# detect_objects("static/videos/input.mp4")
